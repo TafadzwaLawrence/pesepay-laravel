@@ -9,6 +9,10 @@ class PesepayService
 {
     protected Pesepay $pesepay;
 
+    // Constants for reference prefixes
+    const ECOCASH_REF_PREFIX = 'PZW211';
+    const BANK_REF_PREFIX = 'PWZ204';
+
     public function __construct(
         string $integrationKey,
         string $encryptionKey,
@@ -45,7 +49,7 @@ class PesepayService
 
         $payment = $this->pesepay->createPayment(
             $params['currency'] ?? config('pesepay.default_currency', 'USD'),
-            $params['reference'],
+            self::ECOCASH_REF_PREFIX,
             $params['email'],
             $params['phone'],
             $params['description'] ?? 'Ecocash Payment'
@@ -66,36 +70,41 @@ class PesepayService
         return $response;
     }
 
-    public function bank(array $params)
+    public function card(array $params)
     {
-        $this->validatePaymentParams($params, ['amount', 'account_number', 'bank_code', 'email', 'reference']);
+        $this->validatePaymentParams($params, ['amount', 'email', 'card_number', 'card_expiry', 'card_cvv']);
+
+        $reference = $params['reference'] ?? self::CARD_REF_PREFIX . uniqid();
 
         $payment = $this->pesepay->createPayment(
             $params['currency'] ?? config('pesepay.default_currency', 'USD'),
-            $params['reference'],
+            $reference,
             $params['email'],
             $params['phone'] ?? '',
-            $params['description'] ?? 'Bank Payment'
+            $params['description'] ?? 'Card Payment'
         );
+
+        $paymentMethodFields = [
+            'creditCardNumber' => $params['card_number'],
+            'creditCardExpiryDate' => $params['card_expiry'],
+            'creditCardSecurityNumber' => $params['card_cvv'],
+        ];
 
         $response = $this->pesepay->makeSeamlessPayment(
             $payment,
             $params['purpose'] ?? 'Payment',
             $params['amount'],
-            [
-                'accountNumber' => $params['account_number'],
-                'bankCode' => $params['bank_code'],
-                'accountName' => $params['account_name'] ?? '',
-            ],
+            $paymentMethodFields,
             $params['brand_name'] ?? config('pesepay.brand_name', 'Pesepay')
         );
 
-        if (! $response->success()) {
+        if (!$response->success()) {
             throw new PesepayException($response->message());
         }
 
         return $response;
     }
+
 
     protected function validatePaymentParams(array $params, array $required): void
     {
