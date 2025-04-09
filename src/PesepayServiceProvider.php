@@ -15,8 +15,8 @@ class PesepayServiceProvider extends PackageServiceProvider
             ->hasConfigFile()
             ->hasViews()
             ->hasMigration('create_pesepay_table');
-            // ->hasRoute('web')
-            // ->hasCommand(PesepayCommand::class);
+        // ->hasRoute('web')
+        // ->hasCommand(PesepayCommand::class);
     }
 
     public function packageRegistered()
