@@ -2,9 +2,10 @@
     "name": "chitanga/pesepay",
     "description": "Seamless Pesepay integration package",
     "keywords": [
-        ":vendor_name",
-        "laravel",
-        ":package_slug"
+        "payment",
+        "pesepay",
+        "gateway",
+        "ecommerce"
     ],
     "homepage": "https://github.com/TafadzwaLawrence/pesepay-laravel",
     "license": "MIT",
