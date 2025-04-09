@@ -1,6 +1,6 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "chitanga/pesepay",
+    "description": "Seamless Pesepay integration package",
     "keywords": [
         ":vendor_name",
         "laravel",
@@ -10,15 +10,16 @@
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "Tafadzwa Chitanga",
+            "email": "chitangalawrence03@gmail.com",
             "role": "Developer"
         }
     ],
     "require": {
-        "php": "^8.4",
-        "spatie/laravel-package-tools": "^1.16",
-        "illuminate/contracts": "^10.0||^11.0||^12.0"
+        "php": "^8.2",
+        "codevirtus/pesepay": "^1.0",
+        "illuminate/contracts": "^10.0||^11.0||^12.0",
+        "spatie/laravel-package-tools": "^1.16"
     },
     "require-dev": {
         "laravel/pint": "^1.14",
