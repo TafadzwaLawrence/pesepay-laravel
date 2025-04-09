@@ -1,6 +1,7 @@
 {
     "name": "chitanga/pesepay",
     "description": "Seamless Pesepay integration package",
+    "type": "library",
     "keywords": [
         "payment",
         "pesepay",
@@ -17,7 +18,7 @@
         }
     ],
     "require": {
-        "php": "^8.2",
+        "php": "^8.0",
         "codevirtus/pesepay": "^1.0",
         "illuminate/contracts": "^10.0||^11.0||^12.0",
         "spatie/laravel-package-tools": "^1.16"
@@ -34,6 +35,10 @@
         "phpstan/phpstan-deprecation-rules": "^1.1||^2.0",
         "phpstan/phpstan-phpunit": "^1.3||^2.0",
         "spatie/laravel-ray": "^1.35"
+    },
+    "suggest": {
+        "laravel/framework": "Required to use with Laravel",
+        "guzzlehttp/guzzle": "Required for HTTP requests"
     },
     "autoload": {
         "psr-4": {
@@ -68,7 +73,7 @@
                 "Chitanga\\Pesepay\\PesepayServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "Chitanga\\Pesepay\\Facades\\PesepayFacade"
+                "Pesepay": "Chitanga\\Pesepay\\Facades\\PesepayFacade"
             }
         }
     },
