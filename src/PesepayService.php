@@ -2,10 +2,8 @@
 
 namespace Chitanga\Pesepay;
 
-use Exception;
-use Codevirtus\Payments\Pesepay;
 use Chitanga\Pesepay\Exceptions\PesepayException;
-
+use Codevirtus\Payments\Pesepay;
 
 class PesepayService
 {
@@ -61,7 +59,7 @@ class PesepayService
             $params['brand_name'] ?? config('pesepay.brand_name', 'Pesepay')
         );
 
-        if (!$response->success()) {
+        if (! $response->success()) {
             throw new PesepayException($response->message());
         }
 
@@ -92,7 +90,7 @@ class PesepayService
             $params['brand_name'] ?? config('pesepay.brand_name', 'Pesepay')
         );
 
-        if (!$response->success()) {
+        if (! $response->success()) {
             throw new PesepayException($response->message());
         }
 

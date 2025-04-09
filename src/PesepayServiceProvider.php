@@ -25,10 +25,10 @@ class PesepayServiceProvider extends PackageServiceProvider
             $config = $app['config']['pesepay'];
 
             return new PesepayService([
-                'integration_key'   => $config['integration_key'],
-                'encryption_key'    => $config['encryption_key'],
-                'return_url'        => $config['return_url'],
-                'result_url'        => $config['result_url'],
+                'integration_key' => $config['integration_key'],
+                'encryption_key' => $config['encryption_key'],
+                'return_url' => $config['return_url'],
+                'result_url' => $config['result_url'],
             ]);
         });
     }

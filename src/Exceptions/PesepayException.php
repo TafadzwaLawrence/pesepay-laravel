@@ -11,9 +11,13 @@ class PesepayException extends Exception
      * Default exception messages
      */
     public const INTEGRATION_ERROR = 'Pesepay integration error';
+
     public const PAYMENT_FAILED = 'Payment processing failed';
+
     public const INVALID_REQUEST = 'Invalid payment request';
+
     public const CONFIGURATION_ERROR = 'Pesepay configuration error';
+
     public const INVALID_RESPONSE = 'Invalid response from Pesepay';
 
     /**
@@ -25,16 +29,11 @@ class PesepayException extends Exception
 
     /**
      * Create a new Pesepay exception instance
-     *
-     * @param string $message
-     * @param int $code
-     * @param Throwable|null $previous
-     * @param array $data
      */
     public function __construct(
         string $message = self::PAYMENT_FAILED,
         int $code = 0,
-        Throwable $previous = null,
+        ?Throwable $previous = null,
         array $data = []
     ) {
         parent::__construct($message, $code, $previous);
@@ -44,7 +43,6 @@ class PesepayException extends Exception
     /**
      * Create a configuration exception
      *
-     * @param string $message
      * @return static
      */
     public static function configurationError(string $message): self
@@ -58,8 +56,6 @@ class PesepayException extends Exception
     /**
      * Create an invalid request exception
      *
-     * @param string $message
-     * @param array $data
      * @return static
      */
     public static function invalidRequest(string $message, array $data = []): self
@@ -75,8 +71,6 @@ class PesepayException extends Exception
     /**
      * Create a payment failed exception
      *
-     * @param string $message
-     * @param array $data
      * @return static
      */
     public static function paymentFailed(string $message, array $data = []): self
@@ -92,8 +86,6 @@ class PesepayException extends Exception
     /**
      * Create an invalid response exception
      *
-     * @param string $message
-     * @param array $data
      * @return static
      */
     public static function invalidResponse(string $message, array $data = []): self
@@ -108,8 +100,6 @@ class PesepayException extends Exception
 
     /**
      * Get additional error data
-     *
-     * @return array
      */
     public function getData(): array
     {
@@ -118,8 +108,6 @@ class PesepayException extends Exception
 
     /**
      * Convert exception to array
-     *
-     * @return array
      */
     public function toArray(): array
     {
