@@ -11,6 +11,7 @@ class PesepayService
 
     // Constants for reference prefixes
     const ECOCASH_REF_PREFIX = 'PZW211';
+
     const BANK_REF_PREFIX = 'PWZ204';
 
     public function __construct(
@@ -74,7 +75,7 @@ class PesepayService
     {
         $this->validatePaymentParams($params, ['amount', 'email', 'card_number', 'card_expiry', 'card_cvv']);
 
-        $reference = $params['reference'] ?? self::CARD_REF_PREFIX . uniqid();
+        $reference = $params['reference'] ?? self::CARD_REF_PREFIX.uniqid();
 
         $payment = $this->pesepay->createPayment(
             $params['currency'] ?? config('pesepay.default_currency', 'USD'),
@@ -98,13 +99,12 @@ class PesepayService
             $params['brand_name'] ?? config('pesepay.brand_name', 'Pesepay')
         );
 
-        if (!$response->success()) {
+        if (! $response->success()) {
             throw new PesepayException($response->message());
         }
 
         return $response;
     }
-
 
     protected function validatePaymentParams(array $params, array $required): void
     {
