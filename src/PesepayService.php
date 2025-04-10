@@ -4,6 +4,7 @@ namespace Chitanga\Pesepay;
 
 use Chitanga\Pesepay\Exceptions\PesepayException;
 use Codevirtus\Payments\Pesepay;
+use Illuminate\Support\Facades\Http;
 
 class PesepayService
 {
