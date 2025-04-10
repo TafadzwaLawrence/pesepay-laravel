@@ -108,11 +108,11 @@ $pesepay = new PesepayService(
 ```php
 try {
     $payment = $pesepay->ecocash([
-        'amount' => 10.50,
-        'phone' => '263771234567',
-        'email' => 'customer@example.com',
-        'reference' => 'ORDER123',
-        'description' => 'Product purchase'
+        'amount'        => 10.50,
+        'phone'         => '263771234567',
+        'email'         => 'customer@example.com',
+        'reference'     => 'PZW211',                // Dont change the reference code 
+        'description'   => 'Product purchase'
     ]);
     
     // Store $payment['reference_number'] and $payment['poll_url'] in your database
@@ -126,12 +126,12 @@ try {
 ```php
 try {
     $payment = $pesepay->card([
-        'amount' => 25.00,
-        'email' => 'customer@example.com',
-        'card_number' => '4111111111111111',
-        'card_expiry' => '12/25',
-        'card_cvv' => '123',
-        'reference' => 'ORDER456'
+        'amount'        => 25.00,
+        'email'         => 'customer@example.com',
+        'card_number'   => '4111111111111111',
+        'card_expiry'   => '12/25',
+        'card_cvv'      => '123',
+        'reference'     => 'PWZ204'                 // Dont change the reference code 
     ]);
     
     // Process payment response
