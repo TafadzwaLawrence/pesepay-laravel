@@ -23,6 +23,7 @@ class PesepayService
     ) {
         $this->validateCredentials($integrationKey, $encryptionKey);
 
+        $this->integrationKey = $integrationKey;
         $this->pesepay = new Pesepay($integrationKey, $encryptionKey);
 
         if ($returnUrl) {
@@ -196,7 +197,7 @@ class PesepayService
 
             $encoded = base64_decode($payload);
             $ALGORITHM = 'AES-256-CBC';
-            $encryptionKey = $this->encryptionKey; // Use the instance's key
+            $encryptionKey = $this->integrationKey; // Use the instance's key
             $INIT_VECTOR_LENGTH = 16;
             $initVector = substr($encryptionKey, 0, $INIT_VECTOR_LENGTH);
 
