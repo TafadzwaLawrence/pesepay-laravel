@@ -124,37 +124,37 @@ class PesepayService
     }
 
     /**
-     * Check payment status
-     *
-     * @param string $pollUrl The URL to check for payment status
-     * @return array Contains status and decoded response data
-     * @throws PesepayException
-     */
-    public function checkPaymentStatus(string $pollUrl): array
-    {
-        try {
-            $response = Http::withHeaders([
-                'authorization' => $this->pesepay->integrationKey,
-                'content-type' => 'application/json',
-            ])->get($pollUrl);
+ * Check payment status
+ *
+ * @param string $pollUrl The URL to check for payment status
+ * @return array Contains status and decoded response data
+ * @throws PesepayException
+ */
+public function checkPaymentStatus(string $pollUrl): array
+{
+    try {
+        $response = Http::withHeaders([
+            'authorization' => $this->pesepay->integrationKey,
+            'content-type' => 'application/json',
+        ])->get($pollUrl);
 
-            $decodedResponse = $this->decodePesepayResponse($response);
+        $decodedResponse = $this->decodePesepayResponse($response);
 
-            return [
-                'success' => ($decodedResponse['transactionStatus'] ?? null) === 'SUCCESS',
-                'status' => $decodedResponse['transactionStatus'] ?? null,
-                'data' => $decodedResponse
-            ];
+        return [
+            'success' => ($decodedResponse['transactionStatus'] ?? null) === 'SUCCESS',
+            'status' => $decodedResponse['transactionStatus'] ?? null,
+            'data' => $decodedResponse
+        ];
 
-        } catch (\Exception $e) {
-            throw new PesepayException(
-                'Error checking payment status: '.$e->getMessage(),
-                0,
-                $e,
-                ['poll_url' => $pollUrl]
-            );
-        }
+    } catch (\Exception $e) {
+        throw new PesepayException(
+            'Error checking payment status: '.$e->getMessage(),
+            0,
+            $e,
+            ['poll_url' => $pollUrl]
+        );
     }
+}
 
     /**
      * Quick check if payment was successful
@@ -226,4 +226,5 @@ class PesepayService
             );
         }
     }
+
 }
