@@ -124,56 +124,13 @@ class PesepayService
     }
 
     /**
-     * Check payment status with polling
+     * Check payment status
      *
-     * @param  string  $pollUrl  The URL to poll for payment status
-     * @param  int  $maxAttempts  Maximum number of polling attempts
-     * @param  int  $intervalSeconds  Interval between attempts in seconds
-     * @return array Contains status and any additional data
-     *
+     * @param string $pollUrl The URL to check for payment status
+     * @return array Contains status and decoded response data
      * @throws PesepayException
      */
-    public function checkPaymentStatus(
-        string $pollUrl,
-        int $maxAttempts = 6,
-        int $intervalSeconds = 5
-    ): array {
-        $paymentStatus = null;
-        $responseData = [];
-
-        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
-            sleep($intervalSeconds);
-
-            try {
-                $response = Http::withHeaders([
-                    'authorization' => $this->pesepay->integrationKey,
-                    'content-type' => 'application/json',
-                ])->get($pollUrl);
-
-                $decodedResponse = $this->decodePesepayResponse($response);
-                $paymentStatus = $decodedResponse['transactionStatus'] ?? null;
-                $responseData = $decodedResponse;
-
-                if ($paymentStatus === 'SUCCESS' || $paymentStatus === 'FAILED') {
-                    break;
-                }
-            } catch (\Exception $e) {
-                throw new PesepayException('Error checking payment status: '.$e->getMessage());
-            }
-        }
-
-        return [
-            'status' => $paymentStatus,
-            'data' => $responseData,
-            'attempts' => $attempt,
-        ];
-    }
-
-
-    /**
-     * Quick check if payment was successful (single attempt)
-     */
-    public function isPaymentSuccessful(string $pollUrl): bool
+    public function checkPaymentStatus(string $pollUrl): array
     {
         try {
             $response = Http::withHeaders([
@@ -183,31 +140,90 @@ class PesepayService
 
             $decodedResponse = $this->decodePesepayResponse($response);
 
-            return ($decodedResponse['transactionStatus'] ?? null) === 'SUCCESS';
+            return [
+                'success' => ($decodedResponse['transactionStatus'] ?? null) === 'SUCCESS',
+                'status' => $decodedResponse['transactionStatus'] ?? null,
+                'data' => $decodedResponse
+            ];
+
+        } catch (\Exception $e) {
+            throw new PesepayException(
+                'Error checking payment status: '.$e->getMessage(),
+                0,
+                $e,
+                ['poll_url' => $pollUrl]
+            );
+        }
+    }
+
+    /**
+     * Quick check if payment was successful
+     */
+    public function isPaymentSuccessful(string $pollUrl): bool
+    {
+        try {
+            $status = $this->checkPaymentStatus($pollUrl);
+            return $status['success'];
         } catch (\Exception $e) {
             return false;
         }
     }
 
     /**
-     * Decode Pesepay API response
+     * Decodes Pesepay's encrypted response
      *
-     * @param  mixed  $response
-     *
+     * @param \Illuminate\Http\Client\Response $response
+     * @return array
      * @throws PesepayException
      */
-    protected function decodePesepayResponse($response): array
+    private function decodePesepayResponse($response): array
     {
         if ($response->failed()) {
-            throw new PesepayException("Failed to get payment status: HTTP {$response->status()}");
+            throw new PesepayException(
+                "Failed to get payment status: HTTP {$response->status()}",
+                $response->status()
+            );
         }
 
-        $decoded = json_decode($response->body(), true);
+        try {
+            $payload = $response->json()['payload'] ?? '';
 
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new PesepayException('Invalid JSON response from Pesepay');
+            if (empty($payload)) {
+                throw new PesepayException("Empty payload in Pesepay response");
+            }
+
+            $encoded = base64_decode($payload);
+            $ALGORITHM = 'AES-256-CBC';
+            $encryptionKey = $this->pesepay->encryptionKey; // Use the instance's key
+            $INIT_VECTOR_LENGTH = 16;
+            $initVector = substr($encryptionKey, 0, $INIT_VECTOR_LENGTH);
+
+            $decoded = openssl_decrypt(
+                $encoded,
+                $ALGORITHM,
+                $encryptionKey,
+                OPENSSL_RAW_DATA,
+                $initVector
+            );
+
+            if ($decoded === false) {
+                throw new PesepayException("Failed to decrypt Pesepay response");
+            }
+
+            $result = json_decode($decoded, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new PesepayException("Invalid JSON in decrypted response");
+            }
+
+            return $result;
+
+        } catch (\Exception $e) {
+            throw new PesepayException(
+                "Error decoding Pesepay response: ".$e->getMessage(),
+                0,
+                $e
+            );
         }
-
-        return $decoded;
     }
 }
