@@ -197,7 +197,7 @@ class PesepayService
 
             $encoded = base64_decode($payload);
             $ALGORITHM = 'AES-256-CBC';
-            $encryptionKey = $this->integrationKey; // Use the instance's key
+            $encryptionKey = config('pesepay.integration_key'); // Use the instance's key
             $INIT_VECTOR_LENGTH = 16;
             $initVector = substr($encryptionKey, 0, $INIT_VECTOR_LENGTH);
 
