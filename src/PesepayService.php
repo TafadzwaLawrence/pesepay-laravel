@@ -169,7 +169,6 @@ class PesepayService
         ];
     }
 
-
     /**
      * Quick check if payment was successful (single attempt)
      */
