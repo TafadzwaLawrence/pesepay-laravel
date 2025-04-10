@@ -64,7 +64,7 @@ class PesepayException extends Exception
             $message ?: self::INVALID_REQUEST,
             400,
             null,
-            $data 
+            $data
         );
     }
 

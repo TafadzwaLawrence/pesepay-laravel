@@ -124,37 +124,38 @@ class PesepayService
     }
 
     /**
- * Check payment status
- *
- * @param string $pollUrl The URL to check for payment status
- * @return array Contains status and decoded response data
- * @throws PesepayException
- */
-public function checkPaymentStatus(string $pollUrl): array
-{
-    try {
-        $response = Http::withHeaders([
-            'authorization' => $this->pesepay->integrationKey,
-            'content-type' => 'application/json',
-        ])->get($pollUrl);
+     * Check payment status
+     *
+     * @param  string  $pollUrl  The URL to check for payment status
+     * @return array Contains status and decoded response data
+     *
+     * @throws PesepayException
+     */
+    public function checkPaymentStatus(string $pollUrl): array
+    {
+        try {
+            $response = Http::withHeaders([
+                'authorization' => $this->pesepay->integrationKey,
+                'content-type' => 'application/json',
+            ])->get($pollUrl);
 
-        $decodedResponse = $this->decodePesepayResponse($response);
+            $decodedResponse = $this->decodePesepayResponse($response);
 
-        return [
-            'success' => ($decodedResponse['transactionStatus'] ?? null) === 'SUCCESS',
-            'status' => $decodedResponse['transactionStatus'] ?? null,
-            'data' => $decodedResponse
-        ];
+            return [
+                'success' => ($decodedResponse['transactionStatus'] ?? null) === 'SUCCESS',
+                'status' => $decodedResponse['transactionStatus'] ?? null,
+                'data' => $decodedResponse,
+            ];
 
-    } catch (\Exception $e) {
-        throw new PesepayException(
-            'Error checking payment status: '.$e->getMessage(),
-            0,
-            $e,
-            ['poll_url' => $pollUrl]
-        );
+        } catch (\Exception $e) {
+            throw new PesepayException(
+                'Error checking payment status: '.$e->getMessage(),
+                0,
+                $e,
+                ['poll_url' => $pollUrl]
+            );
+        }
     }
-}
 
     /**
      * Quick check if payment was successful
@@ -163,6 +164,7 @@ public function checkPaymentStatus(string $pollUrl): array
     {
         try {
             $status = $this->checkPaymentStatus($pollUrl);
+
             return $status['success'];
         } catch (\Exception $e) {
             return false;
@@ -172,8 +174,8 @@ public function checkPaymentStatus(string $pollUrl): array
     /**
      * Decodes Pesepay's encrypted response
      *
-     * @param \Illuminate\Http\Client\Response $response
-     * @return array
+     * @param  \Illuminate\Http\Client\Response  $response
+     *
      * @throws PesepayException
      */
     private function decodePesepayResponse($response): array
@@ -189,7 +191,7 @@ public function checkPaymentStatus(string $pollUrl): array
             $payload = $response->json()['payload'] ?? '';
 
             if (empty($payload)) {
-                throw new PesepayException("Empty payload in Pesepay response");
+                throw new PesepayException('Empty payload in Pesepay response');
             }
 
             $encoded = base64_decode($payload);
@@ -207,24 +209,23 @@ public function checkPaymentStatus(string $pollUrl): array
             );
 
             if ($decoded === false) {
-                throw new PesepayException("Failed to decrypt Pesepay response");
+                throw new PesepayException('Failed to decrypt Pesepay response');
             }
 
             $result = json_decode($decoded, true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new PesepayException("Invalid JSON in decrypted response");
+                throw new PesepayException('Invalid JSON in decrypted response');
             }
 
             return $result;
 
         } catch (\Exception $e) {
             throw new PesepayException(
-                "Error decoding Pesepay response: ".$e->getMessage(),
+                'Error decoding Pesepay response: '.$e->getMessage(),
                 0,
                 $e
             );
         }
     }
-
 }
