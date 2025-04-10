@@ -107,7 +107,7 @@ class PesepayService
         }
 
         return [
-            'status'    => true,
+            'status' => true,
             'reference_number' => $response->referenceNumber(),
             'poll_url' => $response->pollUrl(),
         ];
