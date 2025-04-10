@@ -77,17 +77,6 @@ return [
     'default_currency' => 'USD',
     'brand_name' => env('PESEPAY_BRAND_NAME', env('APP_NAME', 'Laravel')),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Supported Banks
-    |--------------------------------------------------------------------------
-    */
-    'banks' => [
-        'CBZ' => '63',
-        'Stanbic' => '23',
-        'Standard Chartered' => '03',
-        // Add more banks as needed
-    ],
 ];
 ```
 
