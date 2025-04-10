@@ -103,7 +103,11 @@ class PesepayService
             throw new PesepayException($response->message());
         }
 
-        return $response;
+        return [
+            'reference_number' => $response->referenceNumber(),
+            'poll_url' => $response->pollUrl(),
+            'raw_response' => $response->toArray() // Include full response if needed
+        ];
     }
 
     protected function validatePaymentParams(array $params, array $required): void
@@ -113,5 +117,93 @@ class PesepayService
                 throw new PesepayException("Missing required parameter: {$field}");
             }
         }
+    }
+
+        /**
+     * Check payment status with polling
+     *
+     * @param string $pollUrl The URL to poll for payment status
+     * @param int $maxAttempts Maximum number of polling attempts
+     * @param int $intervalSeconds Interval between attempts in seconds
+     * @return array Contains status and any additional data
+     * @throws PesepayException
+     */
+    public function checkPaymentStatus(
+        string $pollUrl,
+        int $maxAttempts = 6,
+        int $intervalSeconds = 5
+    ): array {
+        $paymentStatus = null;
+        $responseData = [];
+
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+            sleep($intervalSeconds);
+
+            try {
+                $response = Http::withHeaders([
+                    'authorization' => $this->pesepay->integrationKey,
+                    'content-type' => 'application/json',
+                ])->get($pollUrl);
+
+                $decodedResponse = $this->decodePesepayResponse($response);
+                $paymentStatus = $decodedResponse['transactionStatus'] ?? null;
+                $responseData = $decodedResponse;
+
+                if ($paymentStatus === 'SUCCESS' || $paymentStatus === 'FAILED') {
+                    break;
+                }
+            } catch (\Exception $e) {
+                throw new PesepayException("Error checking payment status: " . $e->getMessage());
+            }
+        }
+
+        return [
+            'status' => $paymentStatus,
+            'data' => $responseData,
+            'attempts' => $attempt
+        ];
+    }
+
+    /**
+     * Quick check if payment was successful (single attempt)
+     *
+     * @param string $pollUrl
+     * @return bool
+     */
+    public function isPaymentSuccessful(string $pollUrl): bool
+    {
+        try {
+            $response = Http::withHeaders([
+                'authorization' => $this->pesepay->integrationKey,
+                'content-type' => 'application/json',
+            ])->get($pollUrl);
+
+            $decodedResponse = $this->decodePesepayResponse($response);
+            return ($decodedResponse['transactionStatus'] ?? null) === 'SUCCESS';
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Decode Pesepay API response
+     *
+     * @param mixed $response
+     * @return array
+     * @throws PesepayException
+     */
+    protected function decodePesepayResponse($response): array
+    {
+        if ($response->failed()) {
+            throw new PesepayException("Failed to get payment status: HTTP {$response->status()}");
+        }
+
+        $decoded = json_decode($response->body(), true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new PesepayException("Invalid JSON response from Pesepay");
+        }
+
+        return $decoded;
     }
 }
