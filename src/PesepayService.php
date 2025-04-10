@@ -168,27 +168,7 @@ class PesepayService
             'attempts' => $attempt,
         ];
     }
-        /**
-     * Decodes Pesepay's encrypted response.
-     */
-    private function decodePesepayResponse($response)
-    {
-        $encoded = base64_decode($response->json()['payload']);
-        $ALGORITHM = 'AES-256-CBC';
-        $encryptionKey = '9d96f087bfeb450ca979b2c9b3479f49';
-        $INIT_VECTOR_LENGTH = 16;
-        $initVector = substr($encryptionKey, 0, $INIT_VECTOR_LENGTH);
 
-        $decoded = openssl_decrypt(
-            $encoded,
-            $ALGORITHM,
-            $encryptionKey,
-            OPENSSL_RAW_DATA,
-            $initVector
-        );
-
-        return json_decode($decoded, true);
-    }
 
     /**
      * Quick check if payment was successful (single attempt)
