@@ -44,36 +44,36 @@ class PesepayService
         }
     }
 
-    // public function ecocash(array $params)
-    // {
-    //     $this->validatePaymentParams($params, ['amount', 'phone', 'email', 'reference']);
+    public function ecocash(array $params)
+    {
+        $this->validatePaymentParams($params, ['amount', 'phone', 'email', 'reference']);
 
-    //     $payment = $this->pesepay->createPayment(
-    //         $params['currency'] ?? config('pesepay.default_currency', 'USD'),
-    //         self::ECOCASH_REF_PREFIX,
-    //         $params['email'],
-    //         $params['phone'],
-    //         $params['description'] ?? 'Ecocash Payment'
-    //     );
+        $payment = $this->pesepay->createPayment(
+            $params['currency'] ?? config('pesepay.default_currency', 'USD'),
+            self::ECOCASH_REF_PREFIX,
+            $params['email'],
+            $params['phone'],
+            $params['description'] ?? 'Ecocash Payment'
+        );
 
-    //     $response = $this->pesepay->makeSeamlessPayment(
-    //         $payment,
-    //         $params['purpose'] ?? 'Payment',
-    //         $params['amount'],
-    //         ['customerPhoneNumber' => $params['phone']],
-    //         $params['brand_name'] ?? config('pesepay.brand_name', 'Pesepay')
-    //     );
+        $response = $this->pesepay->makeSeamlessPayment(
+            $payment,
+            $params['purpose'] ?? 'Payment',
+            $params['amount'],
+            ['customerPhoneNumber' => $params['phone']],
+            $params['brand_name'] ?? config('pesepay.brand_name', 'Pesepay')
+        );
 
-    //     if (! $response->success()) {
-    //         throw new PesepayException($response->message());
-    //     }
+        if (! $response->success()) {
+            throw new PesepayException($response->message());
+        }
 
-    //     return [
-    //         'reference_number' => $response->referenceNumber(),
-    //         'poll_url' => $response->pollUrl(),
-    //         'raw_response' => $response->toArray(), // Include full response if needed
-    //     ];
-    // }
+        return [
+            'reference_number' => $response->referenceNumber(),
+            'poll_url' => $response->pollUrl(),
+            'raw_response' => $response->toArray(), // Include full response if needed
+        ];
+    }
 
     public function card(array $params)
     {
