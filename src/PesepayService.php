@@ -23,7 +23,6 @@ class PesepayService
     ) {
         $this->validateCredentials($integrationKey, $encryptionKey);
 
-        $this->integrationKey = $integrationKey;
         $this->pesepay = new Pesepay($integrationKey, $encryptionKey);
 
         if ($returnUrl) {
@@ -136,7 +135,7 @@ class PesepayService
     {
         try {
             $response = Http::withHeaders([
-                'authorization' => $this->pesepay->integrationKey,
+                'authorization' => config('pesepay.integration_key'),
                 'content-type' => 'application/json',
             ])->get($pollUrl);
 
@@ -197,7 +196,7 @@ class PesepayService
 
             $encoded = base64_decode($payload);
             $ALGORITHM = 'AES-256-CBC';
-            $encryptionKey = config('pesepay.integration_key'); // Use the instance's key
+            $encryptionKey = config('pesepay.encryption_key'); // Use the instance's key
             $INIT_VECTOR_LENGTH = 16;
             $initVector = substr($encryptionKey, 0, $INIT_VECTOR_LENGTH);
 
