@@ -106,7 +106,7 @@ class PesepayService
         return [
             'reference_number' => $response->referenceNumber(),
             'poll_url' => $response->pollUrl(),
-            'raw_response' => $response->toArray() // Include full response if needed
+            'raw_response' => $response->toArray(), // Include full response if needed
         ];
     }
 
@@ -119,13 +119,14 @@ class PesepayService
         }
     }
 
-        /**
+    /**
      * Check payment status with polling
      *
-     * @param string $pollUrl The URL to poll for payment status
-     * @param int $maxAttempts Maximum number of polling attempts
-     * @param int $intervalSeconds Interval between attempts in seconds
+     * @param  string  $pollUrl  The URL to poll for payment status
+     * @param  int  $maxAttempts  Maximum number of polling attempts
+     * @param  int  $intervalSeconds  Interval between attempts in seconds
      * @return array Contains status and any additional data
+     *
      * @throws PesepayException
      */
     public function checkPaymentStatus(
@@ -153,22 +154,19 @@ class PesepayService
                     break;
                 }
             } catch (\Exception $e) {
-                throw new PesepayException("Error checking payment status: " . $e->getMessage());
+                throw new PesepayException('Error checking payment status: '.$e->getMessage());
             }
         }
 
         return [
             'status' => $paymentStatus,
             'data' => $responseData,
-            'attempts' => $attempt
+            'attempts' => $attempt,
         ];
     }
 
     /**
      * Quick check if payment was successful (single attempt)
-     *
-     * @param string $pollUrl
-     * @return bool
      */
     public function isPaymentSuccessful(string $pollUrl): bool
     {
@@ -179,6 +177,7 @@ class PesepayService
             ])->get($pollUrl);
 
             $decodedResponse = $this->decodePesepayResponse($response);
+
             return ($decodedResponse['transactionStatus'] ?? null) === 'SUCCESS';
         } catch (\Exception $e) {
             return false;
@@ -188,8 +187,8 @@ class PesepayService
     /**
      * Decode Pesepay API response
      *
-     * @param mixed $response
-     * @return array
+     * @param  mixed  $response
+     *
      * @throws PesepayException
      */
     protected function decodePesepayResponse($response): array
@@ -201,7 +200,7 @@ class PesepayService
         $decoded = json_decode($response->body(), true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new PesepayException("Invalid JSON response from Pesepay");
+            throw new PesepayException('Invalid JSON response from Pesepay');
         }
 
         return $decoded;
