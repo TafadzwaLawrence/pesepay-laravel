@@ -71,7 +71,6 @@ class PesepayService
         return [
             'reference_number' => $response->referenceNumber(),
             'poll_url' => $response->pollUrl(),
-            'raw_response' => $response->toArray(), // Include full response if needed
         ];
     }
 
